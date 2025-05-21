@@ -1,0 +1,30 @@
+# Виртуальное окружение
+.venv/
+venv/
+
+# Конфиги среды
+.env
+*.env
+
+# Python-артефакты
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Логи, sqlite, postgis data
+*.log
+*.db
+*.sqlite3
+
+# Папка с загруженными фото (если вы не хотите хранить
+# в репозитории реальные изображения)
+uploads/
+
+# IDE / Editor
+.idea/
+.vscode/
+*.iml
+
+# Mac, Windows
+.DS_Store
+Thumbs.db

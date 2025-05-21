@@ -4,33 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f6505727-6017-4be5-b1f4-fe2bacb7539e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/photo-map.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/api/v1/upload.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/config.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/crud/photo.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/db/base.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/db/models.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/db/session.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/main.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/schemas/photo.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/services/exif_service.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/utils/gps.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/css/images/layers-2x.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/css/images/layers.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/css/images/marker-icon-2x.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/css/images/marker-icon.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/css/images/marker-shadow.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/css/leaflet.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/js/leaflet.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/map.html" afterDir="false" />
-    </list>
+    <list default="true" id="f6505727-6017-4be5-b1f4-fe2bacb7539e" name="Changes" comment="Add photo upload, EXIF parsing, and map visualization features&#10;&#10;Implemented a full workflow for uploading images, extracting GPS data via EXIF, storing photo metadata in the database, and visualizing the photo route on a map. Added necessary APIs, EXIF utilities, database integration, and templates along with static assets for map rendering." />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -84,7 +58,20 @@
       <option name="presentableId" value="Default" />
       <updated>1747855305374</updated>
     </task>
+    <task id="LOCAL-00001" summary="Add photo upload, EXIF parsing, and map visualization features&#10;&#10;Implemented a full workflow for uploading images, extracting GPS data via EXIF, storing photo metadata in the database, and visualizing the photo route on a map. Added necessary APIs, EXIF utilities, database integration, and templates along with static assets for map rendering.">
+      <option name="closed" value="true" />
+      <created>1747865664809</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1747865664809</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Add photo upload, EXIF parsing, and map visualization features&#10;&#10;Implemented a full workflow for uploading images, extracting GPS data via EXIF, storing photo metadata in the database, and visualizing the photo route on a map. Added necessary APIs, EXIF utilities, database integration, and templates along with static assets for map rendering." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add photo upload, EXIF parsing, and map visualization features&#10;&#10;Implemented a full workflow for uploading images, extracting GPS data via EXIF, storing photo metadata in the database, and visualizing the photo route on a map. Added necessary APIs, EXIF utilities, database integration, and templates along with static assets for map rendering." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
