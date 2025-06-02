@@ -36,6 +36,14 @@ async def index(request: Request):
     )
     return tmpl_response
 
+@app.get("/upload", response_class=HTMLResponse)
+async def upload_ui(request: Request):
+    """
+    Новый маршрут для UI-страницы загрузки фотографий.
+    Отдаёт upload.html из папки templates/.
+    """
+    return templates.TemplateResponse("upload.html", {"request": request})
+
 async def init_models():
     """
     Создаёт все таблицы, описанные в Base.metadata,

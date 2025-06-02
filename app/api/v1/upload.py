@@ -4,7 +4,10 @@ from fastapi import APIRouter, UploadFile, File, Depends, HTTPException, status,
 import shutil
 
 from geoalchemy2.shape import to_shape
-from sqlalchemy import text
+from sqlalchemy import delete, text
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.db.models import Photo
 from app.services.exif_service import parse_exif_coords_and_time
 from app.crud.photo import create_photo, get_photos_by_owner
 from app.db.session import get_db
@@ -96,13 +99,29 @@ async def list_photosb(request: Request, db=Depends(get_db)):
     return result
 
 @router.delete("/photos/", status_code=status.HTTP_204_NO_CONTENT)
-async def clear_photos(db = Depends(get_db)):
-    await db.execute(text("TRUNCATE TABLE photos"))
+async def clear_photos(request: Request, db: AsyncSession = Depends(get_db)):
+    """
+    Удаление всех фотографий только текущего пользователя (по session_token).
+    """
+    session_token = request.cookies.get("session_token")
+    if not session_token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
+
+    # 1) Удаляем все записи из таблицы photos, принадлежащие этому токену
+    await db.execute(delete(Photo).where(Photo.owner_token == session_token))
     await db.commit()
-    import os, glob
-    for f in glob.glob("uploads/*"):
-        os.remove(f)
-    return {"message": "Photos cleared successfully."}
+
+    # 2) Удаляем папку uploads/<session_token> целиком (со всеми файлами внутри)
+    user_folder = os.path.join("uploads", session_token)
+    if os.path.isdir(user_folder):
+        try:
+            shutil.rmtree(user_folder)
+        except OSError:
+            # Если не удалось удалить — просто игнорируем и идём дальше
+            pass
+
+    # 3) Возвращаем 204 No Content
+    return None
 
 @router.get("/route/", response_model=list[RoutePoint])
 async def get_route(request: Request, db=Depends(get_db)):
