@@ -8,6 +8,7 @@ class PhotoOut(BaseModel):
     timestamp: datetime
     lat: float
     lng: float
+    owner_token: str
 
     model_config = SettingsConfigDict(from_attributes=True)
 

@@ -15,7 +15,10 @@
   <div id="map"></div>
   <script src="/static/js/leaflet.js"></script>
   <script>
-  fetch('/api/v1/route/')
+  fetch("/api/v1/route/", {
+  method: "GET",
+  credentials: "include"
+  })
     .then(r => r.json())
     .then(route => {
       if (!route.length) return alert('Нет точек');

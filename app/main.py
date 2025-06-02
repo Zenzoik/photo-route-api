@@ -1,7 +1,9 @@
 # app/main.py
 
 import asyncio
-from fastapi import FastAPI
+import uuid
+
+from fastapi import FastAPI, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.requests import Request
@@ -20,8 +22,19 @@ templates = Jinja2Templates(directory="templates")
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
-    # отдаём просто HTML, JS подхватит маршрут
-    return templates.TemplateResponse("map.html", {"request": request})
+    session_token = request.cookies.get("session_token")
+    if not session_token:
+        session_token = str(uuid.uuid4())
+
+    tmpl_response = templates.TemplateResponse("map.html", {"request": request})
+    tmpl_response.set_cookie(
+        key="session_token",
+        value=session_token,
+        httponly=True,
+        samesite="lax",
+        path="/"
+    )
+    return tmpl_response
 
 async def init_models():
     """
