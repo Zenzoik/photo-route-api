@@ -3,47 +3,135 @@
 <head>
   <meta charset="UTF-8" />
   <title>Ваш маршрут</title>
-  <link
-    rel="stylesheet"
-    href="/static/css/leaflet.css"
-  />
+  <link rel="stylesheet" href="/static/css/leaflet.css" />
   <style>
-    #map { height: 100vh; margin: 0; padding: 0; }
+    body { margin: 0; padding: 0; }
+    #map { position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
+
+    /* Кнопка «Поделиться маршрутом» */
+    #share-container {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 6px 12px;
+      border-radius: 4px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    }
+    #share-btn {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 3px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    #share-btn:hover { background-color: #0056b3; }
+
+    /* Миниатюры внутри попапа */
+    .leaflet-popup-content img {
+      max-width: 100px;
+      max-height: 100px;
+      display: block;
+      margin-top: 5px;
+    }
   </style>
 </head>
 <body>
+  <!-- Кнопка «Поделиться маршрутом» -->
+  <div id="share-container">
+    <button id="share-btn" onclick="shareRoute()">Поделиться маршрутом</button>
+  </div>
+
+  <!-- Контейнер для карты -->
   <div id="map"></div>
+
+  <!-- Подключаем Leaflet.js -->
   <script src="/static/js/leaflet.js"></script>
   <script>
-  fetch("/api/v1/route/", {
-  method: "GET",
-  credentials: "include"
-  })
-    .then(r => r.json())
-    .then(route => {
-      if (!route.length) return alert('Нет точек');
-      const map = L.map('map').setView([route[0].lat, route[0].lng], 13);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
-      }).addTo(map);
+    // Переменная для токена шаринга (получим, когда загрузится маршрут)
+    let shareToken = null;
 
-      // Иконки Leaflet ищут marker-icon.png → нужно их положить в /static/css/images/
-      // (см. пункт 4 ниже)
+    // Функция, срабатывающая по клику «Поделиться маршрутом»
+    function shareRoute() {
+      if (!shareToken) {
+        alert("Маршрут пока не загружен, попробуйте чуть позже.");
+        return;
+      }
+      const shareUrl = `${window.location.origin}/share/${shareToken}`;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(shareUrl).then(
+          () => alert("Ссылка для шаринга скопирована:\n\n" + shareUrl),
+          () => prompt("Скопируйте этот URL:", shareUrl)
+        );
+      } else {
+        prompt("Скопируйте этот URL:", shareUrl);
+      }
+    }
 
-      route.forEach(p => {
-        const marker = L.marker([p.lat, p.lng]).addTo(map);
-        // в попапе показываем время, имя и миниатюру
-        marker.bindPopup(`
-          <b>${new Date(p.time).toLocaleString()}</b><br>
-          <i>${p.filename}</i><br>
-          <img src="/uploads/${p.filename}"
-               style="max-width:100px;max-height:100px;display:block;margin-top:5px;" />
-        `);
+    // Делаем запрос к своему маршруту и рисуем карту
+    fetch("/api/v1/route/", {
+      method: "GET",
+      credentials: "include"
+    })
+      .then(res => {
+        if (!res.ok) {
+          return res.json().then(err => {
+            throw new Error(err.detail || res.statusText);
+          });
+        }
+        return res.json();
+      })
+      .then(route => {
+        if (!Array.isArray(route) || !route.length) {
+          alert("Нет точек для отображения маршрута.");
+          return;
+        }
+
+        // Запоминаем токен (owner_token) у первой точки
+        shareToken = route[0].owner_token;
+
+        // Инициализируем карту на первой точке
+        const first = route[0];
+        const map = L.map("map").setView([first.lat, first.lng], 13);
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        // Добавляем маркеры с изображением (оригиналом)
+        route.forEach(p => {
+          const marker = L.marker([p.lat, p.lng]).addTo(map);
+
+          // Вот тут важно правильно закрыть кавычку и тег <img>
+          const popupHtml = `
+            <b>${new Date(p.time).toLocaleString()}</b><br>
+            <i>${p.filename}</i><br>
+            <img
+              src="/uploads/${p.owner_token}/${p.filename}"
+              onerror="this.onerror=null;this.src='/uploads/${p.owner_token}/${p.filename}';"
+              style="max-width:100px;max-height:100px;"
+            />
+          `;
+          marker.bindPopup(popupHtml);
+        });
+
+        // Рисуем линию между точками
+        const latlngs = route.map(p => [p.lat, p.lng]);
+        L.polyline(latlngs, { color: "blue" }).addTo(map);
+
+        // Подгоняем область просмотра, чтобы все точки поместились
+        const bounds = L.latLngBounds(latlngs);
+        map.fitBounds(bounds, { padding: [50, 50] });
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Ошибка при загрузке маршрута: " + err.message);
       });
-
-      // рисуем полилинию
-      L.polyline(route.map(p => [p.lat, p.lng]), { color: 'blue' }).addTo(map);
-    });
   </script>
 </body>
 </html>

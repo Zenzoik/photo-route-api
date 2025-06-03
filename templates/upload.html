@@ -1,323 +1,328 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Загрузка фото для маршрута</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        h1 {
-            color: #333;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .upload-area {
-            border: 2px dashed #ccc;
-            border-radius: 10px;
-            height: 200px;
-            text-align: center;
-            padding: 20px;
-            margin: 20px 0;
-            cursor: pointer;
-            transition: border-color 0.3s;
-        }
-
-        .upload-area:hover {
-            border-color: #007bff;
-        }
-
-        .upload-area.dragover {
-            border-color: #007bff;
-            background-color: #f0f8ff;
-        }
-
-        .upload-text {
-            margin-top: 50px;
-            color: #666;
-            font-size: 16px;
-        }
-
-        #fileInput {
-            display: none;
-        }
-
-        .file-list {
-            margin: 20px 0;
-        }
-
-        .file-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            margin: 5px 0;
-            background: #f9f9f9;
-        }
-
-        .file-item.success {
-            border-color: #28a745;
-            background: #d4edda;
-        }
-
-        .file-item.error {
-            border-color: #dc3545;
-            background: #f8d7da;
-        }
-
-        .buttons {
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        button {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            margin: 0 10px;
-            transition: background-color 0.3s;
-        }
-
-        button:hover {
-            background: #0056b3;
-        }
-
-        button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-
-        .clear-btn {
-            background: #dc3545;
-        }
-
-        .clear-btn:hover {
-            background: #c82333;
-        }
-
-        .progress {
-            width: 100%;
-            background-color: #f0f0f0;
-            border-radius: 5px;
-            margin: 10px 0;
-            display: none;
-        }
-
-        .progress-bar {
-            width: 0%;
-            height: 20px;
-            background-color: #007bff;
-            border-radius: 5px;
-            transition: width 0.3s;
-        }
-
-        .status {
-            margin: 20px 0;
-            padding: 10px;
-            border-radius: 5px;
-            display: none;
-        }
-
-        .status.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .status.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .view-map-btn {
-            background: #28a745;
-        }
-
-        .view-map-btn:hover {
-            background: #218838;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Загрузка фото для маршрута</title>
+  <style>
+    /* Ваши стили для контейнера, drag-n-drop и т. д. */
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .upload-area {
+      border: 2px dashed #ccc;
+      border-radius: 10px;
+      height: 200px;
+      text-align: center;
+      padding: 20px;
+      margin: 20px 0;
+      cursor: pointer;
+      transition: border-color 0.3s;
+    }
+    .upload-area.dragover {
+      border-color: #007bff;
+      background-color: #f0f8ff;
+    }
+    .upload-text {
+      margin-top: 50px;
+      color: #666;
+      font-size: 16px;
+    }
+    #fileInput {
+      display: none;
+    }
+    .file-list {
+      margin: 20px 0;
+    }
+    .file-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      margin: 5px 0;
+      background: #f9f9f9;
+    }
+    .file-item.success {
+      border-color: #28a745;
+      background: #d4edda;
+    }
+    .buttons {
+      text-align: center;
+      margin: 20px 0;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 0 10px;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .clear-btn {
+      background: #dc3545;
+    }
+    .clear-btn:hover {
+      background: #c82333;
+    }
+    .view-map-btn {
+      background: #28a745;
+    }
+    .view-map-btn:hover {
+      background: #218838;
+    }
+    /* Стили для превью (mini-thumbnails) */
+    .preview-container {
+      margin-top: 20px;
+      text-align: center;
+    }
+    .thumbnail {
+      display: inline-block;
+      margin: 8px;
+      text-align: center;
+    }
+    .thumbnail img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .thumbnail .filename {
+      display: block;
+      margin-top: 4px;
+      font-size: 0.85rem;
+      color: #374151;
+      word-break: break-all;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>📸 Загрузка фото для построения маршрута</h1>
+  <div class="container">
+    <h1>📸 Загрузка фото для построения маршрута</h1>
 
-        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-            <div class="upload-text">
-                Нажмите здесь или перетащите фото с GPS данными<br>
-                <small>Поддерживаются JPEG, HEIC форматы</small>
-            </div>
-        </div>
-
-        <input type="file" id="fileInput" multiple accept="image/*,.heic,.HEIC">
-
-        <div class="file-list" id="fileList"></div>
-
-        <div class="progress" id="progress">
-            <div class="progress-bar" id="progressBar"></div>
-        </div>
-
-        <div class="status" id="status"></div>
-
-        <div class="buttons">
-            <button id="uploadBtn" onclick="uploadFiles()" disabled>Загрузить фото</button>
-            <button class="clear-btn" onclick="clearAll()">Очистить все</button>
-            <button class="view-map-btn" onclick="viewMap()">Посмотреть маршрут</button>
-        </div>
+    <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+      <div class="upload-text">
+        Нажмите здесь или перетащите фото с GPS данными<br>
+        <small>Поддерживаются JPEG, HEIC форматы</small>
+      </div>
     </div>
 
-    <script>
-        let selectedFiles = [];
+    <input type="file" id="fileInput" multiple accept="image/*,.heic,.HEIC" />
 
-        const fileInput = document.getElementById('fileInput');
-        const fileList = document.getElementById('fileList');
-        const uploadBtn = document.getElementById('uploadBtn');
-        const uploadArea = document.querySelector('.upload-area');
-        const progress = document.getElementById('progress');
-        const progressBar = document.getElementById('progressBar');
-        const status = document.getElementById('status');
+    <div class="file-list" id="fileList"></div>
 
-        // Обработка выбора файлов
-        fileInput.addEventListener('change', function(e) {
-            handleFiles(e.target.files);
+    <div class="buttons">
+      <button id="uploadBtn" onclick="uploadFiles()" disabled>Загрузить фото</button>
+      <button class="clear-btn" onclick="clearAll()">Очистить все</button>
+      <button class="view-map-btn" onclick="viewMap()">Посмотреть маршрут</button>
+    </div>
+
+    <div style="margin-top: 30px; text-align: center;">
+      <button id="show-photos-btn" onclick="showPhotos()">Показать фото</button>
+      <button id="delete-photos-btn" onclick="deletePhotos()">Удалить мои фото</button>
+    </div>
+
+    <!-- Контейнер для превью миниатюр -->
+    <div id="preview-container" class="preview-container"></div>
+  </div>
+
+  <script>
+    let selectedFiles = [];
+
+    const fileInput = document.getElementById('fileInput');
+    const fileList = document.getElementById('fileList');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const uploadArea = document.querySelector('.upload-area');
+
+    // Обработка выбора файлов
+    fileInput.addEventListener('change', function(e) {
+      handleFiles(e.target.files);
+    });
+
+    // Drag & Drop
+    uploadArea.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      uploadArea.classList.add('dragover');
+    });
+    uploadArea.addEventListener('dragleave', function(e) {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+    });
+    uploadArea.addEventListener('drop', function(e) {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+      handleFiles(e.dataTransfer.files);
+    });
+
+    function handleFiles(files) {
+      selectedFiles = Array.from(files);
+      updateFileList();
+      uploadBtn.disabled = selectedFiles.length === 0;
+    }
+
+    function updateFileList() {
+      fileList.innerHTML = '';
+      selectedFiles.forEach((file, index) => {
+        const div = document.createElement('div');
+        div.className = 'file-item';
+        div.innerHTML = `
+          <span>${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+          <button onclick="removeFile(${index})" style="background: #dc3545; padding: 5px 10px; font-size: 12px;">Удалить</button>
+        `;
+        fileList.appendChild(div);
+      });
+    }
+
+    function removeFile(index) {
+      selectedFiles.splice(index, 1);
+      updateFileList();
+      uploadBtn.disabled = selectedFiles.length === 0;
+    }
+
+    function clearAll() {
+      selectedFiles = [];
+      updateFileList();
+      uploadBtn.disabled = true;
+    }
+
+    async function uploadFiles() {
+      if (selectedFiles.length === 0) return;
+
+      uploadBtn.disabled = true;
+      const formData = new FormData();
+      selectedFiles.forEach(file => {
+        formData.append('files', file);
+      });
+
+      try {
+        const response = await fetch('/api/v1/uploadfiles/', {
+          method: 'POST',
+          body: formData,
+          credentials: 'include'
         });
+        if (response.ok) {
+          alert(`Успешно загружено ${selectedFiles.length} фото!`);
+          // отмечаем все элементы списка как «успешно загружено»
+          document.querySelectorAll('.file-item').forEach(el => {
+            el.classList.add('success');
+          });
+          selectedFiles = [];
+          updateFileList();
+        } else {
+          const error = await response.json();
+          alert('Ошибка при загрузке: ' + (error.detail || JSON.stringify(error)));
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Ошибка сети при загрузке: ' + err.message);
+      } finally {
+        uploadBtn.disabled = false;
+      }
+    }
 
-        // Drag & Drop
-        uploadArea.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            uploadArea.classList.add('dragover');
+    function viewMap() {
+      window.open('/', '_blank');
+    }
+
+    // --- Вот здесь добавляем отсутствующие функции ---
+
+    async function showPhotos() {
+      const previewContainer = document.getElementById('preview-container');
+      previewContainer.innerHTML = '';
+      try {
+        const response = await fetch('/api/v1/photos/', {
+          method: 'GET',
+          credentials: 'include'
         });
+        if (response.status === 401) {
+          alert('Сессия не найдена. Зайдите сначала на главную (/).');
+          return;
+        }
+        const data = await response.json();
+        if (!response.ok) {
+          alert('Не удалось получить список фото: ' + (data.detail || JSON.stringify(data)));
+          return;
+        }
+        if (data.length === 0) {
+          previewContainer.innerHTML = '<p>Фото не найдены.</p>';
+          return;
+        }
+        data.forEach(photo => {
+          const thumbDiv = document.createElement('div');
+          thumbDiv.className = 'thumbnail';
 
-        uploadArea.addEventListener('dragleave', function(e) {
-            e.preventDefault();
-            uploadArea.classList.remove('dragover');
+          const img = document.createElement('img');
+          img.src = `/uploads/${photo.owner_token}/${photo.filename}`;
+          img.alt = photo.filename;
+          img.onerror = () => {
+            img.alt = 'Ошибка загрузки';
+            img.style.border = '1px solid red';
+          };
+
+          const nameSpan = document.createElement('span');
+          nameSpan.className = 'filename';
+          nameSpan.textContent = photo.filename;
+
+          thumbDiv.appendChild(img);
+          thumbDiv.appendChild(nameSpan);
+          previewContainer.appendChild(thumbDiv);
         });
+      } catch (err) {
+        console.error(err);
+        alert('Ошибка при получении фото: ' + err.message);
+      }
+    }
 
-        uploadArea.addEventListener('drop', function(e) {
-            e.preventDefault();
-            uploadArea.classList.remove('dragover');
-            handleFiles(e.dataTransfer.files);
+    async function deletePhotos() {
+      if (!confirm('Вы уверены, что хотите удалить ВСЕ свои фото? Это действие необратимо!')) {
+        return;
+      }
+      try {
+        const response = await fetch('/api/v1/photos/', {
+          method: 'DELETE',
+          credentials: 'include'
         });
-
-        function handleFiles(files) {
-            selectedFiles = Array.from(files);
-            updateFileList();
-            uploadBtn.disabled = selectedFiles.length === 0;
+        if (response.status === 204) {
+          alert('Все ваши фото удалены.');
+          document.getElementById('preview-container').innerHTML = '';
+        } else if (response.status === 401) {
+          alert('Сессия не найдена. Зайдите сначала на главную (/).');
+        } else {
+          const data = await response.json();
+          alert('Ошибка при удалении: ' + (data.detail || JSON.stringify(data)));
         }
-
-        function updateFileList() {
-            fileList.innerHTML = '';
-            selectedFiles.forEach((file, index) => {
-                const div = document.createElement('div');
-                div.className = 'file-item';
-                div.innerHTML = `
-                    <span>${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)</span>
-                    <button onclick="removeFile(${index})" style="background: #dc3545; padding: 5px 10px; font-size: 12px;">Удалить</button>
-                `;
-                fileList.appendChild(div);
-            });
-        }
-
-        function removeFile(index) {
-            selectedFiles.splice(index, 1);
-            updateFileList();
-            uploadBtn.disabled = selectedFiles.length === 0;
-        }
-
-        function clearAll() {
-            selectedFiles = [];
-            updateFileList();
-            uploadBtn.disabled = true;
-            hideStatus();
-            hideProgress();
-        }
-
-        async function uploadFiles() {
-            if (selectedFiles.length === 0) return;
-
-            showProgress();
-            uploadBtn.disabled = true;
-
-            const formData = new FormData();
-            selectedFiles.forEach(file => {
-                formData.append('files', file);
-            });
-
-            try {
-                const response = await fetch('/api/v1/uploadfiles/', {
-                    method: 'POST',
-                    body: formData,
-                    credentials: 'include'
-                });
-
-                if (response.ok) {
-                    const result = await response.json();
-                    showStatus('success', `Успешно загружено ${selectedFiles.length} фото!`);
-                    updateProgressBar(100);
-
-                    // Обновляем статус файлов
-                    const fileItems = fileList.querySelectorAll('.file-item');
-                    fileItems.forEach(item => item.classList.add('success'));
-
-                } else {
-                    const error = await response.json();
-                    showStatus('error', `Ошибка: ${error.detail || 'Неизвестная ошибка'}`);
-                }
-            } catch (error) {
-                showStatus('error', `Ошибка сети: ${error.message}`);
-            } finally {
-                uploadBtn.disabled = false;
-                hideProgress();
-            }
-        }
-
-        function showProgress() {
-            progress.style.display = 'block';
-            updateProgressBar(0);
-        }
-
-        function hideProgress() {
-            progress.style.display = 'none';
-        }
-
-        function updateProgressBar(percent) {
-            progressBar.style.width = percent + '%';
-        }
-
-        function showStatus(type, message) {
-            status.className = `status ${type}`;
-            status.textContent = message;
-            status.style.display = 'block';
-        }
-
-        function hideStatus() {
-            status.style.display = 'none';
-        }
-
-        function viewMap() {
-            window.open('/', '_blank');
-        }
-    </script>
+      } catch (err) {
+        console.error(err);
+        alert('Ошибка сети при удалении фото: ' + err.message);
+      }
+    }
+  </script>
 </body>
 </html>

@@ -32,7 +32,8 @@ async def index(request: Request):
         value=session_token,
         httponly=True,
         samesite="lax",
-        path="/"
+        path="/",
+        max_age=30 * 24 * 60 * 60
     )
     return tmpl_response
 
@@ -52,6 +53,13 @@ async def init_models():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
+
+@app.get("/share/{share_token}", response_class=HTMLResponse)
+async def share_page(request: Request, share_token: str):
+    """
+    Отдаёт страницу share.html, куда передаём share_token для загрузки маршрута.
+    """
+    return templates.TemplateResponse("share.html", {"request": request, "share_token": share_token})
 
 if __name__ == "__main__":
     # 1) инициализируем модели (создаём схему)

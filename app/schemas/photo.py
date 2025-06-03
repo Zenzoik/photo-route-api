@@ -18,5 +18,6 @@ class RoutePoint(BaseModel):
     lat: float
     lng: float
     time: datetime
+    owner_token: str
 
     model_config = SettingsConfigDict(from_attributes=True)

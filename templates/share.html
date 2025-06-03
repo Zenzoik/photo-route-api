@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Shared Photo→Route Map</title>
+  <link rel="stylesheet" href="/static/css/leaflet.css" />
+  <style>
+    body { margin: 0; padding: 0; }
+    #map { position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
+    .leaflet-popup-content img {
+      max-width: 150px;
+      max-height: 150px;
+      display: block;
+      margin-top: 5px;
+    }
+    /* Кнопка «Вернуться к моим маршрутам» */
+    #back-container {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 6px 12px;
+      border-radius: 4px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    }
+    #back-btn {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 3px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    #back-btn:hover { background-color: #218838; }
+  </style>
+</head>
+<body>
+  <!-- Кнопка «Вернуться к моим маршрутам» -->
+  <div id="back-container">
+    <button id="back-btn" onclick="window.location.href='/'">
+      Вернуться к моим маршрутам
+    </button>
+  </div>
+
+  <!-- Карта -->
+  <div id="map"></div>
+
+  <script src="/static/js/leaflet.js"></script>
+  <script>
+    // Парсим shareToken из URL вида /share/{shareToken}
+    const pathParts = window.location.pathname.split('/');
+    const shareToken = pathParts[pathParts.length - 1];
+
+    // Запрашиваем публичный маршрут по shareToken
+    fetch(`/api/v1/shared_route/${shareToken}`, { method: 'GET' })
+      .then(res => {
+        if (!res.ok) {
+          return res.json().then(err => { throw new Error(err.detail || res.statusText) });
+        }
+        return res.json();
+      })
+      .then(route => {
+        if (!Array.isArray(route) || !route.length) {
+          alert('По этому токену нет сохранённых точек или маршрут пуст.');
+          return;
+        }
+
+        // Инициализируем карту по первой точке
+        const first = route[0];
+        const map = L.map('map').setView([first.lat, first.lng], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        // Добавляем маркеры с отображением фото (с ограничением размера)
+        route.forEach(p => {
+          const marker = L.marker([p.lat, p.lng]).addTo(map);
+          const imageUrl = `/uploads/${p.owner_token}/${p.filename}`;
+          const popupHtml = `
+            <b>${new Date(p.time).toLocaleString()}</b><br>
+            <i>${p.filename}</i><br>
+            <img src="${imageUrl}" alt="${p.filename}" />
+          `;
+          marker.bindPopup(popupHtml);
+        });
+
+        // Рисуем полилинию маршрута
+        const latlngs = route.map(p => [p.lat, p.lng]);
+        L.polyline(latlngs, { color: 'blue' }).addTo(map);
+
+        // Подгоняем зум
+        const bounds = L.latLngBounds(latlngs);
+        map.fitBounds(bounds, { padding: [50, 50] });
+      })
+      .catch(err => {
+        console.error(err);
+        alert('Ошибка при отрисовке маршрута: ' + err.message);
+      });
+  </script>
+</body>
+</html>
