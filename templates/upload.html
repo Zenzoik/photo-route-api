@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Загрузка фото для маршрута</title>
   <style>
-    /* Ваши стили для контейнера, drag-n-drop и т. д. */
+    /* Общие стили */
     body {
       font-family: Arial, sans-serif;
       max-width: 800px;
@@ -24,6 +24,8 @@
       text-align: center;
       margin-bottom: 30px;
     }
+
+    /* Секция Drag-n-drop */
     .upload-area {
       border: 2px dashed #ccc;
       border-radius: 10px;
@@ -97,15 +99,20 @@
     .view-map-btn:hover {
       background: #218838;
     }
-    /* Стили для превью (mini-thumbnails) */
     .preview-container {
       margin-top: 20px;
-      text-align: center;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
     }
     .thumbnail {
-      display: inline-block;
-      margin: 8px;
+      position: relative;
+      width: 120px;
       text-align: center;
+      font-size: 14px;
+      color: #374151;
+      word-break: break-all;
     }
     .thumbnail img {
       width: 100px;
@@ -115,11 +122,29 @@
       border-radius: 4px;
     }
     .thumbnail .filename {
+      margin-top: 6px;
       display: block;
-      margin-top: 4px;
-      font-size: 0.85rem;
-      color: #374151;
-      word-break: break-all;
+    }
+
+    /* Кнопка «крестик» удаления внутри миниатюры */
+    .thumbnail .remove-icon {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: rgba(220,53,69,0.9);
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      color: white;
+      font-weight: bold;
+      font-size: 14px;
+      line-height: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .thumbnail .remove-icon:hover {
+      background: rgba(220,53,69,1);
     }
   </style>
 </head>
@@ -129,7 +154,7 @@
 
     <div class="upload-area" onclick="document.getElementById('fileInput').click()">
       <div class="upload-text">
-        Нажмите здесь или перетащите фото с GPS данными<br>
+        Нажмите здесь или перетащите фото с GPS-данными<br>
         <small>Поддерживаются JPEG, HEIC форматы</small>
       </div>
     </div>
@@ -229,7 +254,6 @@
         });
         if (response.ok) {
           alert(`Успешно загружено ${selectedFiles.length} фото!`);
-          // отмечаем все элементы списка как «успешно загружено»
           document.querySelectorAll('.file-item').forEach(el => {
             el.classList.add('success');
           });
@@ -251,11 +275,11 @@
       window.open('/map', '_blank');
     }
 
-    // --- Вот здесь добавляем отсутствующие функции ---
+    // ------------ Новый код: показ миниатюр и кнопка удаления ------------
 
     async function showPhotos() {
       const previewContainer = document.getElementById('preview-container');
-      previewContainer.innerHTML = '';
+      previewContainer.innerHTML = ''; // очищаем контейнер
       try {
         const response = await fetch('/api/v1/photos/', {
           method: 'GET',
@@ -277,7 +301,13 @@
         data.forEach(photo => {
           const thumbDiv = document.createElement('div');
           thumbDiv.className = 'thumbnail';
+          const removeIcon = document.createElement('div');
+          removeIcon.className = 'remove-icon';
+          removeIcon.innerHTML = '&times;'; // символ ×
+          removeIcon.title = 'Удалить это фото';
+          removeIcon.onclick = () => deletePhoto(photo.id, thumbDiv);
 
+          // Сама картинка
           const img = document.createElement('img');
           img.src = `/uploads/${photo.owner_token}/${photo.filename}`;
           img.alt = photo.filename;
@@ -286,10 +316,12 @@
             img.style.border = '1px solid red';
           };
 
+          // Подпись с именем файла
           const nameSpan = document.createElement('span');
           nameSpan.className = 'filename';
           nameSpan.textContent = photo.filename;
 
+          thumbDiv.appendChild(removeIcon);
           thumbDiv.appendChild(img);
           thumbDiv.appendChild(nameSpan);
           previewContainer.appendChild(thumbDiv);
@@ -314,6 +346,33 @@
           document.getElementById('preview-container').innerHTML = '';
         } else if (response.status === 401) {
           alert('Сессия не найдена. Зайдите сначала на главную (/).');
+        } else {
+          const data = await response.json();
+          alert('Ошибка при удалении: ' + (data.detail || JSON.stringify(data)));
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Ошибка сети при удалении фото: ' + err.message);
+      }
+    }
+
+    async function deletePhoto(photoId, thumbDiv) {
+      if (!confirm('Удалить это фото?')) {
+        return;
+      }
+      try {
+        const response = await fetch(`/api/v1/photos/${photoId}`, {
+          method: 'DELETE',
+          credentials: 'include'
+        });
+        if (response.status === 204) {
+          // Если удалилось успешно, убираем миниатюру из DOM
+          thumbDiv.remove();
+        } else if (response.status === 401) {
+          alert('Сессия не найдена. Зайдите сначала на главную (/).');
+        } else if (response.status === 404) {
+          alert('Фото не найдено или уже удалено.');
+          thumbDiv.remove();
         } else {
           const data = await response.json();
           alert('Ошибка при удалении: ' + (data.detail || JSON.stringify(data)));

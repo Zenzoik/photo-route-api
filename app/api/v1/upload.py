@@ -175,6 +175,30 @@ async def clear_photos(request: Request, db: AsyncSession = Depends(get_db)):
 
     return None
 
+@router.delete("/photos/{photo_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_photo(request: Request, photo_id: int, db: AsyncSession = Depends(get_db)):
+    session_token = request.cookies.get("session_token")
+    if not session_token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
+    result = await db.execute(select(Photo).where(Photo.id == photo_id, Photo.owner_token == session_token))
+    photo = result.scalar_one_or_none()
+    if not photo:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Photo not found")
+    filename = photo.filename
+    await db.execute(delete(Photo).where(Photo.id == photo_id, Photo.owner_token == session_token))
+    await db.commit()
+
+    user_folder = os.path.join("uploads", session_token)
+    if os.path.isdir(user_folder):
+        try:
+            photo_path = os.path.join(user_folder, filename)
+            if os.path.exists(photo_path):
+                os.remove(photo_path)
+        except OSError:
+            print(f"Error deleting file: {e}")
+            pass
+    return None
+
 @router.get("/route/", response_model=list[RoutePoint])
 async def get_route(request: Request, db=Depends(get_db)):
     session_token = request.cookies.get("session_token")
