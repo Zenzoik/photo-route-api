@@ -3,7 +3,7 @@
 import asyncio
 import uuid
 
-from fastapi import FastAPI, Response
+from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.requests import Request
@@ -20,13 +20,24 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 templates = Jinja2Templates(directory="templates")
 
-@app.get("/", response_class=HTMLResponse)
+@app.get("/map", response_class=HTMLResponse)
 async def index(request: Request):
     session_token = request.cookies.get("session_token")
     if not session_token:
-        session_token = str(uuid.uuid4())
+        raise HTTPException(status_code=401, detail="Unauthorized")
 
-    tmpl_response = templates.TemplateResponse("map.html", {"request": request})
+    return templates.TemplateResponse("map.html", {"request": request})
+
+@app.get("/", response_class=HTMLResponse)
+async def upload_ui(request: Request):
+    """
+    Новый маршрут для UI-страницы загрузки фотографий.
+    Отдаёт upload.html из папки templates/.
+    """
+    session_token = request.cookies.get("session_token")
+    if not session_token:
+        session_token = str(uuid.uuid4())
+    tmpl_response = templates.TemplateResponse("upload.html", {"request": request})
     tmpl_response.set_cookie(
         key="session_token",
         value=session_token,
@@ -36,14 +47,6 @@ async def index(request: Request):
         max_age=30 * 24 * 60 * 60
     )
     return tmpl_response
-
-@app.get("/upload", response_class=HTMLResponse)
-async def upload_ui(request: Request):
-    """
-    Новый маршрут для UI-страницы загрузки фотографий.
-    Отдаёт upload.html из папки templates/.
-    """
-    return templates.TemplateResponse("upload.html", {"request": request})
 
 async def init_models():
     """
@@ -62,8 +65,4 @@ async def share_page(request: Request, share_token: str):
     return templates.TemplateResponse("share.html", {"request": request, "share_token": share_token})
 
 if __name__ == "__main__":
-    # 1) инициализируем модели (создаём схему)
     asyncio.run(init_models())
-    # 2) запускаем сервер
-    import uvicorn
-    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)

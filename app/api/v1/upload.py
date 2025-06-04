@@ -1,8 +1,10 @@
 import os
 from datetime import datetime
+
+import piexif
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException, status, Request, Path
 import shutil
-
+from PIL import Image
 from geoalchemy2.shape import to_shape
 from sqlalchemy import delete, text, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -17,16 +19,61 @@ from app.schemas.photo import PhotoOut, RoutePoint
 router = APIRouter()
 
 @router.post("/uploadfiles/")
-async def upload_files(request: Request,files: list[UploadFile], db = Depends(get_db)):
+async def upload_files(
+    request: Request,
+    files: list[UploadFile],
+    db: AsyncSession = Depends(get_db),
+):
     session_token = request.cookies.get("session_token")
     if not session_token:
         raise HTTPException(status_code=401, detail="Unauthorized")
+
     for file in files:
         user_folder = os.path.join("uploads", session_token)
         os.makedirs(user_folder, exist_ok=True)
-        local_path = os.path.join(user_folder, file.filename)
-        with open(local_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+
+        filename, extension = os.path.splitext(file.filename)
+        extension = extension.lower()
+
+        tmp_path = os.path.join(user_folder, file.filename)
+        contents = await file.read()
+        with open(tmp_path, "wb") as buffer:
+            buffer.write(contents)
+
+        exif_bytes = None
+        try:
+            with Image.open(tmp_path) as img_for_exif:
+                info = img_for_exif.info
+                if "exif" in info and info["exif"]:
+                    exif_bytes = info["exif"]
+                else:
+                    try:
+                        exif_dict = piexif.load(tmp_path)
+                        exif_bytes = piexif.dump(exif_dict)
+                    except Exception:
+                        exif_bytes = None
+        except Exception:
+            exif_bytes = None
+
+        if extension not in (".jpg", ".jpeg"):
+            converted_file_name = f"{filename}.jpg"
+            local_path = os.path.join(user_folder, converted_file_name)
+            try:
+                with Image.open(tmp_path) as img_to_convert:
+                    rgb = img_to_convert.convert("RGB")
+                    if exif_bytes:
+                        rgb.save(local_path, "JPEG", quality=85, exif=exif_bytes)
+                    else:
+                        rgb.save(local_path, "JPEG", quality=85)
+            except Exception as e:
+                raise HTTPException(status_code=400, detail=f"Ошибка конвертации в JPEG: {e}")
+
+            os.remove(tmp_path)
+            saved_file = converted_file_name
+
+        else:
+            local_path = tmp_path
+            saved_file = file.filename
 
         try:
             lat, lng, timestamp_str = parse_exif_coords_and_time(local_path)
@@ -34,10 +81,10 @@ async def upload_files(request: Request,files: list[UploadFile], db = Depends(ge
             raise HTTPException(status_code=400, detail=str(e))
 
         timestamp = datetime.strptime(timestamp_str, "%Y:%m:%d %H:%M:%S")
-        await create_photo(db, file.filename, lat, lng, timestamp, session_token)
-    return {
-        "message": "Files uploaded successfully."
-    }
+        await create_photo(db, saved_file, lat, lng, timestamp, session_token)
+
+    return {"message": "Files uploaded successfully."}
+
 
 @router.post("/upload/", response_model=PhotoOut)
 async def upload_image(
@@ -116,11 +163,9 @@ async def clear_photos(request: Request, db: AsyncSession = Depends(get_db)):
     if not session_token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
 
-    # 1) Удаляем все записи из таблицы photos, принадлежащие этому токену
     await db.execute(delete(Photo).where(Photo.owner_token == session_token))
     await db.commit()
 
-    # 2) Удаляем папку uploads/<session_token> целиком (со всеми файлами внутри)
     user_folder = os.path.join("uploads", session_token)
     if os.path.isdir(user_folder):
         try:
