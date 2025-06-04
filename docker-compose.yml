@@ -23,11 +23,10 @@ services:
       db:
         condition: service_healthy
     environment:
-      # Тот же URL, что и раньше
       - DATABASE_URL=postgresql+asyncpg://photo_user:photo-map@db:5432/photo_route
     volumes:
       - ./uploads:/app/uploads
-    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    command: sh -c "python -c 'import asyncio; from app.main import init_models; asyncio.run(init_models())' && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
     restart: always
 
 volumes:
