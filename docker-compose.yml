@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   db:
     image: postgis/postgis:15-3.3
@@ -7,11 +5,12 @@ services:
       POSTGRES_USER: photo_user
       POSTGRES_PASSWORD: photo-map
       POSTGRES_DB: photo_route
+      POSTGRES_HOST_AUTH_METHOD: trust
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: always
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U photo_user"]
+      test: ["CMD-SHELL", "pg_isready -U photo_user -d photo_route"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -24,10 +23,11 @@ services:
       db:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql+asyncpg://photo_user:photo-map@db:5432/photo_route
+      # Тот же URL, что и раньше
+      - DATABASE_URL=postgresql+asyncpg://photo_user:photo-map@db:5432/photo_route
     volumes:
       - ./uploads:/app/uploads
-    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 "
+    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
     restart: always
 
 volumes:
