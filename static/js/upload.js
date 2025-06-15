@@ -94,7 +94,6 @@
       window.open('/map', '_blank');
     }
 
-    // ------------ Новый код: показ миниатюр и кнопка удаления ------------
 
     async function showPhotos() {
       const previewContainer = document.getElementById('preview-container');
