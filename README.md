@@ -59,7 +59,7 @@ curl http://localhost:8080/
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   Frontend      │    │    Backend      │    │    Database     │
 │                 │    │                 │    │                 │
-│ • HTML/CSS/JS   │───▶│ • FastAPI       │───▶│ • PostgreSQL    │
+│ • HTML/CSS/JS   │──▶│ • FastAPI        │──▶│ • PostgreSQL    │
 │ • Leaflet Maps  │    │ • Python 3.11   │    │ • PostGIS       │
 │ • Drag & Drop   │    │ • Async/Await   │    │ • Spatial Data  │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
