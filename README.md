@@ -189,15 +189,6 @@ DEBUG=false              # Режим отладки
 CORS_ORIGINS=*           # CORS политика
 ```
 
-### Настройка для production
-
-Для production развертывания создайте `.env.prod`:
-
-```bash
-DATABASE_URL=postgresql+asyncpg://your_user:secure_password@db:5432/photo_route_prod
-DEBUG=false
-CORS_ORIGINS=https://your-domain.com
-```
 
 ## 🧪 Тестирование
 
@@ -230,33 +221,7 @@ docker-compose exec web bash
 docker-compose exec web env | grep DATABASE
 ```
 
-## 🔧 Разработка
 
-### Запуск в режиме разработки
-
-```bash
-# Клонирование для разработки
-git clone https://github.com/Zenzoik/photo-route-api.git
-cd photo-route-api
-
-# Установка зависимостей (опционально, для IDE)
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-pip install -r requirements.txt
-
-# Запуск с автоперезагрузкой
-docker-compose up --build
-```
-
-### Создание миграций
-
-```bash
-# Создание новой миграции
-docker-compose exec web alembic revision --autogenerate -m "Description"
-
-# Применение миграций
-docker-compose exec web alembic upgrade head
-```
 
 ## 🌟 Особенности реализации
 
@@ -277,24 +242,6 @@ docker-compose exec web alembic upgrade head
 - **Async/await** архитектура для высокой производительности
 - **Repository pattern** для абстракции работы с данными
 - **Dependency injection** через FastAPI
-
-## 🚀 Production Deployment
-
-Для развертывания в production среде смотрите подробное руководство в [DEPLOYMENT.md](DEPLOYMENT.md).
-
-Краткие шаги:
-1. Настройте VPS с Docker
-2. Получите SSL сертификаты
-3. Настройте Nginx reverse proxy
-4. Используйте `docker-compose.prod.yml`
-
-## 🤝 Участие в разработке
-
-1. Форкните репозиторий
-2. Создайте ветку для фичи (`git checkout -b feature/amazing-feature`)
-3. Зафиксируйте изменения (`git commit -m 'Add amazing feature'`)
-4. Отправьте в ветку (`git push origin feature/amazing-feature`)
-5. Откройте Pull Request
 
 ## 📋 Требования к фотографиям
 
@@ -317,20 +264,9 @@ docker-compose exec web alembic upgrade head
 - **Map rendering**: 100 точек ~500ms
 - **Database**: поддержка 10k+ фотографий на сессию
 
-## 📄 Лицензия
-
-Этот проект распространяется под лицензией MIT. Подробности в файле [LICENSE](LICENSE).
-
-## 🙏 Благодарности
-
-- [OpenStreetMap](https://www.openstreetmap.org/) за картографические данные
-- [Leaflet](https://leafletjs.com/) за библиотеку интерактивных карт
-- [FastAPI](https://fastapi.tiangolo.com/) за отличный веб-фреймворк
 
 ---
 
 **Автор**: [Zenzoik](https://github.com/Zenzoik)  
 **Live Demo**: [zenzoik.fun](https://zenzoik.fun)  
-**Создано**: 2024
-
-⭐ Поставьте звездочку, если проект оказался полезным!
+**Создано**: 2025
