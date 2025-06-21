@@ -16,7 +16,7 @@ __pycache__/
 *.db
 *.sqlite3
 
-#uploads/
+uploads/
 
 # IDE / Editor
 .idea/
