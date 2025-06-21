@@ -26,3 +26,6 @@ uploads/
 # Mac, Windows
 .DS_Store
 Thumbs.db
+
+#user-uploads
+/uploads/
