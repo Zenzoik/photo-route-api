@@ -4,7 +4,7 @@ venv/
 
 # Конфиги среды
 .env
-*.env
+
 
 # Python-артефакты
 __pycache__/
