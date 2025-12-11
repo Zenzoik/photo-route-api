@@ -58,10 +58,16 @@ body {
       background: #d4edda;
     }
     .buttons {
-      text-align: center;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
       margin: 20px 0;
     }
     button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       background: #007bff;
       color: white;
       border: none;
@@ -69,7 +75,7 @@ body {
       border-radius: 5px;
       cursor: pointer;
       font-size: 16px;
-      margin: 0 10px;
+      margin: 0;
       transition: background-color 0.3s;
     }
     button:hover {
@@ -90,6 +96,14 @@ body {
     }
     .view-map-btn:hover {
       background: #218838;
+    }
+    .secondary-actions {
+      margin-top: 30px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      text-align: center;
     }
     .preview-container {
       margin-top: 20px;
@@ -136,4 +150,23 @@ body {
     }
     .thumbnail .remove-icon:hover {
       background: rgba(220,53,69,1);
+    }
+    @media (max-width: 600px) {
+      body {
+        padding: 15px;
+      }
+      .container {
+        padding: 20px;
+      }
+      .upload-area {
+        height: auto;
+        min-height: 160px;
+      }
+      .upload-text {
+        margin-top: 20px;
+      }
+      .buttons button,
+      .secondary-actions button {
+        width: 100%;
+      }
     }
