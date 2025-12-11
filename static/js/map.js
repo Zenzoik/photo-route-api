@@ -1,24 +1,24 @@
-    // Переменная для токена шаринга (получим, когда загрузится маршрут)
+    // Змінна для токена шерінгу (отримаємо, коли завантажиться маршрут)
     let shareToken = null;
 
-    // Функция, срабатывающая по клику «Поделиться маршрутом»
+    // Функція, що спрацьовує по кліку «Поділитися маршрутом»
     function shareRoute() {
       if (!shareToken) {
-        alert("Маршрут пока не загружен, попробуйте чуть позже.");
+        alert("Маршрут ще не завантажено, спробуйте трохи пізніше.");
         return;
       }
       const shareUrl = `${window.location.origin}/share/${shareToken}`;
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(shareUrl).then(
-          () => alert("Ссылка для шаринга скопирована:\n\n" + shareUrl),
-          () => prompt("Скопируйте этот URL:", shareUrl)
+          () => alert("Посилання для поширення скопійовано:\n\n" + shareUrl),
+          () => prompt("Скопіюйте цей URL:", shareUrl)
         );
       } else {
-        prompt("Скопируйте этот URL:", shareUrl);
+        prompt("Скопіюйте цей URL:", shareUrl);
       }
     }
 
-    // Делаем запрос к своему маршруту и рисуем карту
+    // Тягнемо свій маршрут і малюємо карту
     fetch("/api/v1/route/", {
       method: "GET",
       credentials: "include"
@@ -33,14 +33,14 @@
       })
       .then(route => {
         if (!Array.isArray(route) || !route.length) {
-          alert("Нет точек для отображения маршрута.");
+          alert("Немає точок для відображення маршруту.");
           return;
         }
 
-        // Запоминаем токен (owner_token) у первой точки
+        // Запам'ятовуємо токен (owner_token) з першої точки
         shareToken = route[0].owner_token;
 
-        // Инициализируем карту на первой точке
+        // Ініціалізуємо карту на першій точці
         const first = route[0];
         const map = L.map("map").setView([first.lat, first.lng], 13);
 
@@ -49,11 +49,11 @@
             '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(map);
 
-        // Добавляем маркеры с изображением (оригиналом)
+        // Додаємо маркери з зображенням (оригіналом)
         route.forEach(p => {
           const marker = L.marker([p.lat, p.lng]).addTo(map);
 
-          // Вот тут важно правильно закрыть кавычку и тег <img>
+          // Тут важливо правильно закрити лапку і тег <img>
           const popupHtml = `
             <b>${new Date(p.time).toLocaleString()}</b><br>
             <i>${p.filename}</i><br>
@@ -66,15 +66,15 @@
           marker.bindPopup(popupHtml);
         });
 
-        // Рисуем линию между точками
+        // Малюємо лінію між точками
         const latlngs = route.map(p => [p.lat, p.lng]);
         L.polyline(latlngs, { color: "blue" }).addTo(map);
 
-        // Подгоняем область просмотра, чтобы все точки поместились
+        // Підганяємо область перегляду, щоби всі точки помістилися
         const bounds = L.latLngBounds(latlngs);
         map.fitBounds(bounds, { padding: [50, 50] });
       })
       .catch(err => {
         console.error(err);
-        alert("Ошибка при загрузке маршрута: " + err.message);
+        alert("Помилка під час завантаження маршруту: " + err.message);
       });

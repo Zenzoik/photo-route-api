@@ -1,19 +1,19 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Загрузка фото для маршрута</title>
+  <title>Завантаження фото для маршруту</title>
   <link rel="stylesheet" href="/static/css/upload.css" />
 </head>
 <body>
   <div class="container">
-    <h1>📸 Загрузка фото для построения маршрута</h1>
+    <h1>📸 Завантаження фото для побудови маршруту</h1>
 
     <div class="upload-area" onclick="document.getElementById('fileInput').click()">
       <div class="upload-text">
-        Нажмите здесь или перетащите фото с GPS-данными<br>
-        <small>Поддерживаются JPEG, HEIC форматы</small>
+        Натисніть тут або перетягніть фото з GPS-даними<br>
+        <small>Підтримуються формати JPEG, HEIC</small>
       </div>
     </div>
 
@@ -22,14 +22,14 @@
     <div class="file-list" id="fileList"></div>
 
     <div class="buttons">
-      <button id="uploadBtn" onclick="uploadFiles()" disabled>Загрузить фото</button>
-      <button class="clear-btn" onclick="clearAll()">Очистить все</button>
-      <button class="view-map-btn" onclick="viewMap()">Посмотреть маршрут</button>
+      <button id="uploadBtn" onclick="uploadFiles()" disabled>Завантажити фото</button>
+      <button class="clear-btn" onclick="clearAll()">Очистити все</button>
+      <button class="view-map-btn" onclick="viewMap()">Переглянути маршрут</button>
     </div>
 
     <div class="secondary-actions">
-      <button id="show-photos-btn" onclick="showPhotos()">Показать фото</button>
-      <button id="delete-photos-btn" onclick="deletePhotos()">Удалить мои фото</button>
+      <button id="show-photos-btn" onclick="showPhotos()">Показати фото</button>
+      <button id="delete-photos-btn" onclick="deletePhotos()">Видалити мої фото</button>
     </div>
 
     <div id="preview-container" class="preview-container"></div>
